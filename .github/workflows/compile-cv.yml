@@ -1,4 +1,4 @@
-name: Compile CV (LuaLaTeX)
+name: Compiler CV avec LuaLaTeX
 
 on:
   push:
@@ -6,57 +6,135 @@ on:
     paths:
       - '**.tex'
       - '**.cls'
+      - 'cvSections/**'
       - 'pics/**'
       - '.github/workflows/compile-cv.yml'
   pull_request:
     branches: [main, master]
-  workflow_dispatch:   # permet de déclencher manuellement depuis GitHub
+  workflow_dispatch:
 
 jobs:
   build:
     name: Compiler le CV
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
 
     steps:
       # ── 1. Récupérer le code ──────────────────────────────────────────────
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # ── 2. Compiler avec LuaLaTeX via xu-cheng/latex-action ──────────────
-      #   L'image Docker embarque TeXLive complet → aucune installation manuelle
-      - name: Compiler le CV avec LuaLaTeX
+      # ── 2. Compiler avec LuaLaTeX ─────────────────────────────────────────
+      - name: Compiler CV avec LuaLaTeX
+        id: compile
         uses: xu-cheng/latex-action@v3
         with:
-          root_file: "ReCeiVe_cv_[2021].tex"
-          compiler: lualatex
-          args: -interaction=nonstopmode -halt-on-error
-          work_in_root_file_dir: true   # nécessaire pour les \input et \background relatifs
+          root_file: CV_Dylane_Bengono.tex
+          latexmk_use_lualatex: true
+          work_in_root_file_dir: true
+          continue_on_error: true
 
-      # ── 3. Renommer le PDF avec un nom lisible ────────────────────────────
-      - name: Renommer le PDF
+      # ── 3. Vérifier les logs de compilation ───────────────────────────────
+      - name: Vérifier les logs de compilation
+        if: always()
         run: |
-          cp "ReCeiVe_cv_[2021].pdf" "CV_Dylane_Bengono_RSSI.pdf"
+          echo "=== Fichiers générés ==="
+          ls -lh *.pdf 2>/dev/null && echo "PDF trouvé" || echo "Pas de PDF"
+          ls -lh *.log 2>/dev/null && echo "Log trouvé" || echo "Pas de log"
+          echo ""
+          echo "=== Structure du répertoire ==="
+          find . -maxdepth 2 -type f \( -name "*.pdf" -o -name "*.log" -o -name "*.tex" \) | head -20
 
-      # ── 4. Uploader le PDF comme artefact (visible dans chaque run) ───────
+      # ── 4. Afficher les erreurs LaTeX si compilation échouée ──────────────
+      - name: Afficher les erreurs LaTeX
+        if: failure() && hashFiles('CV_Dylane_Bengono.log') != ''
+        run: |
+          echo "=== ERREURS DE COMPILATION ==="
+          tail -100 CV_Dylane_Bengono.log
+          echo ""
+          grep -i "^!.*" CV_Dylane_Bengono.log || echo "Pas d'erreur trouvée"
+
+      # ── 5. Arrêter si compilation échouée ─────────────────────────────────
+      - name: Vérifier que la compilation a réussi
+        if: failure()
+        run: |
+          echo "ERREUR : La compilation LaTeX a échoué"
+          exit 1
+
+      # ── 6. Vérifier que le PDF a été créé ─────────────────────────────────
+      - name: Vérifier le PDF généré
+        run: |
+          if [ ! -f "CV_Dylane_Bengono.pdf" ]; then
+            echo "ERREUR : CV_Dylane_Bengono.pdf n'existe pas"
+            ls -lha *.pdf || echo "Aucun PDF généré"
+            exit 1
+          fi
+          echo "PDF généré avec succès"
+          du -h "CV_Dylane_Bengono.pdf"
+
+      # ── 7. Renommer le PDF avec le nom final lisible ──────────────────────
+      - name: Renommer le PDF final
+        run: |
+          cp CV_Dylane_Bengono.pdf CV_Dylane_Bengono_RSSI.pdf
+          echo "PDF prêt : CV_Dylane_Bengono_RSSI.pdf"
+          ls -lh CV_Dylane_Bengono_RSSI.pdf
+
+      # ── 8. Upload du PDF comme artefact ───────────────────────────────────
       - name: Upload artefact PDF
         uses: actions/upload-artifact@v4
         with:
           name: CV_Dylane_Bengono_RSSI
           path: CV_Dylane_Bengono_RSSI.pdf
           retention-days: 90
+          if-no-files-found: error
 
-      # ── 5. Créer une Release GitHub avec le PDF (sur push vers main) ──────
-      - name: Publier une Release GitHub
+      # ── 9. Obtenir les infos du commit ────────────────────────────────────
+      - name: Obtenir les informations du commit
+        id: commit
+        run: |
+          echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "message=$(git log -1 --pretty=%B | head -1)" >> $GITHUB_OUTPUT
+          echo "date=$(date '+%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      # ── 10. Créer une Release GitHub avec le PDF ──────────────────────────
+      - name: Publier Release GitHub
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: cv-v${{ github.run_number }}
-          name: "CV — Build #${{ github.run_number }}"
+          tag_name: cv-${{ steps.commit.outputs.date }}-${{ steps.commit.outputs.hash }}
+          name: "CV — ${{ steps.commit.outputs.date }} (Build #${{ github.run_number }})"
           body: |
-            CV de Chanel Dylane Bengono (RSSI) — généré automatiquement depuis le commit `${{ github.sha }}`.
+            ### CV de Chanel Dylane Bengono
+            **RSSI | Expert Cybersécurité**
 
-            **Télécharger le PDF :** voir les *Assets* ci-dessous.
+            ---
+
+            - Commit : `${{ steps.commit.outputs.hash }}`
+            - Message : ${{ steps.commit.outputs.message }}
+            - Date : ${{ steps.commit.outputs.date }}
+            - Build : #${{ github.run_number }}
+
+            Telecharger le PDF dans les *Assets* ci-dessous.
+
+            Portfolio : https://dylane-mu.vercel.app/
+            GitHub : https://github.com/bengo237
+            LinkedIn : https://www.linkedin.com/in/chanel-dylane-b-91b850194/
           files: CV_Dylane_Bengono_RSSI.pdf
           make_latest: true
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 11. Résumé final ──────────────────────────────────────────────────
+      - name: Résumé de la compilation
+        if: success()
+        run: |
+          echo "Workflow complété avec succès"
+          echo "  PDF : CV_Dylane_Bengono_RSSI.pdf"
+          echo "  Artefact uploadé (90 jours)"
+          echo "  Release : https://github.com/bengo237/cv/releases"
