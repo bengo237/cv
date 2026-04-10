@@ -1,0 +1,125 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Cv BENGO
+% LuaLaTeX Template
+% Version 1.12.0 (24/04/2023)
+%
+% Original authors:
+% Ged Lex (gedlex@hotmail.ch)
+%
+% Important note:
+% This template must be compiled with LuaLaTeX, the below lines will ensure this
+%!TEX TS-program = lualatex
+%!TEX encoding = UTF-8 Unicode
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+
+%----------------------------------------------------------------------------------------
+\documentclass[rightPos]{ReCeiVe}      % By default, use 'letterpaper' for US letter
+%\geometry{letterpaper, % paper size
+%          left=1.75cm, right=1.75cm, top=1.5cm, bottom=1.5cm, footskip=.6cm, headsep=.5cm, % margins
+%          showframe}                  % show geometry frame
+%          heightrounded}              % avoid underfull vbox warning
+ \usepackage{xcolor} 
+ \usepackage{multicol}
+ \usepackage{comment}
+% Color for highlights
+%\definecolor{highlight}{HTML}{FF0000} % Specify your own color
+%\colorlet{highlight}{white}           % Set predefined color
+% Default colors include: darkgray, gray, lightgray, lightblue, orange, red, concrete
+
+%Colors for text - uncomment and modify
+%\definecolor{darktext}{HTML}{FF0000}
+%\definecolor{text}{HTML}{FF0000}
+%\definecolor{graytext}{HTML}{FF0000}
+%\definecolor{lighttext}{HTML}{414141}
+
+%----------------------------------------------------------------------------------------
+%	PERSONAL INFORMATION
+%	Comment any of the lines below if they are not required
+%----------------------------------------------------------------------------------------
+\background{pics/background5.pdf}
+\photo[rectangle,edge,nofill,left]{5cm}{pics/pp2.png}
+\name{Dylane Bengono}{}
+%\address{}
+\homepage{dylane-mu.vercel.app/}
+\mobile{+237 691457703}
+\email{chaneldylanebengono@gmail.com}
+\linkedin{chanel-dylane-b-91b850194/}
+
+\extrainfo{\textit{Permis de conduire} \textbf{\textit{ Cat A  \& B}}} 
+
+%\twitter{@twit}
+%\xing{xing name}
+%\stackoverflow{SOid}{SOname}
+%\skype{skypeid}
+%\reddit{reddit account}
+%\extrainfo{info}
+
+\position{Responsable Sécurité des Systèmes d'Information (RSSI) | Expert Cybersécurité}
+\headwords{Gouvernance SI | ISO 27001 | Pentest | SOC/SIEM | DevSecOps | Cloud Security | EBIOS RM | PCA/PRA}
+
+%\quote{"Certains voient les choses telles qu'elles sont et se demandent pourquoi. Moi, je rêve de choses qui n'ont jamais existé et je me demande pourquoi pas." - Robert Kennedy}
+
+%----------------------------------------------------------------------------------------
+%	SIDEBAR CONTENT
+%	Fill in the information you would like to add to your sidebar
+%----------------------------------------------------------------------------------------
+
+\aboutMe{
+RSSI à la BVMAC, Ingénieur Polytechnicien (BAC+5) spécialisé en Cybersécurité \& Investigation Numérique.
+Architecte de la sécurité des SI : conception de PSSI, déploiement de SOC/SIEM, pilotage PCA/PRA et gestion des risques (ISO 27001/27005, EBIOS RM, RGPD).
+Expert en sécurité offensive (pentest Black/Grey/White box, Red Team) et défensive (SOC, CSIRT, Threat Hunting, Forensics).
+Maîtrise des environnements Cloud (AWS, GCP, Azure) et des architectures DevSecOps (Kubernetes, Terraform, CI/CD).
+Certifié ISO 27001, CCNP, NSE4 Fortinet, CPTA v2, CCT EC-Council.
+Lauréat national en cybersécurité \& Hall of Fame EC-Council.
+}
+
+\skillset[label/0]{
+Gouvernance \& PSSI/.95,
+Gestion des Risques/.9,
+Conformité ISO 27001/.9,
+SOC \& SIEM/.85,
+Pentest \& Red Team/.85,
+Sécurité Réseau/.9,
+Cloud \& DevSecOps/.8
+}
+
+\languages{{Anglais/C1}, {Français/C2}}
+
+%\hobbies{Jeux vidéo, Voyage, Volleyball}
+
+
+% Usage: \userSection[<section title>]{<content>}
+% \userSection[title]{content}
+
+%----------------------------------------------------------------------------------------
+\begin{document}
+% Print the header
+% Usage: \makecvheader[<position>]
+\makecvheader
+% Print the sidebar
+% Usage: \makecvsidebar[xOffset/value,yOffset/value,noRadius|radius]
+\makecvsidebar
+%----------------------------------------------------------------------------------------
+%	CV/RESUME CONTENT
+%	Each section is imported separately, open each file in order to modify it
+%----------------------------------------------------------------------------------------
+\input{cvSections/professionalExperience.tex}
+\vspace{3mm}
+% ----- À PARTIR D'ICI ON SUPPRIME LA SIDEBAR -----
+\clearpage
+\newgeometry{left=2cm, right=2cm, top=2cm, bottom=2cm}
+\input{cvSections/education.tex}
+\vspace{3mm}
+\input{cvSections/projects.tex}
+\vspace{3mm}
+\input{cvSections/honors.tex}
+% ----- RESTAURATION DE LA GÉOMÉTRIE INITIALE -----
+\restoregeometry
+
+
+%----------------------------------------------------------------------------------------
+\end{document}
+
