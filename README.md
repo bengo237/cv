@@ -7,21 +7,6 @@
 
 ---
 
-## Structure
-
-```
-cv/
-├── .github/workflows/compile-cv.yml   # GitHub Actions (LuaLaTeX → PDF + Release)
-├── cvSections/
-│   ├── professionalExperience.tex
-│   ├── education.tex
-│   ├── projects.tex
-│   └── honors.tex
-├── pics/                               # Photo et fond de page
-├── CV_Dylane_Bengono.tex               # Fichier principal
-└── ReCeiVe.cls                         # Classe LaTeX
-```
-
 ## Compilation locale
 
 Requiert **LuaLaTeX** (TeXLive ou MiKTeX) :
