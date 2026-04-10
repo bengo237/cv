@@ -51,7 +51,7 @@ jobs:
 
       # ── 4. Afficher les erreurs LaTeX si compilation échouée ──────────────
       - name: Afficher les erreurs LaTeX
-        if: failure() && hashFiles('CV_Dylane_Bengono.log') != ''
+        if: steps.compile.outcome == 'failure' && hashFiles('CV_Dylane_Bengono.log') != ''
         run: |
           echo "=== ERREURS DE COMPILATION ==="
           tail -100 CV_Dylane_Bengono.log
@@ -60,7 +60,7 @@ jobs:
 
       # ── 5. Arrêter si compilation échouée ─────────────────────────────────
       - name: Vérifier que la compilation a réussi
-        if: failure()
+        if: steps.compile.outcome == 'failure'
         run: |
           echo "ERREUR : La compilation LaTeX a échoué"
           exit 1
