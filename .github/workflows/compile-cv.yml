@@ -1,0 +1,62 @@
+name: Compile CV (LuaLaTeX)
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - '**.tex'
+      - '**.cls'
+      - 'pics/**'
+      - '.github/workflows/compile-cv.yml'
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:   # permet de déclencher manuellement depuis GitHub
+
+jobs:
+  build:
+    name: Compiler le CV
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Récupérer le code ──────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── 2. Compiler avec LuaLaTeX via xu-cheng/latex-action ──────────────
+      #   L'image Docker embarque TeXLive complet → aucune installation manuelle
+      - name: Compiler le CV avec LuaLaTeX
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: "ReCeiVe_cv_[2021].tex"
+          compiler: lualatex
+          args: -interaction=nonstopmode -halt-on-error
+          work_in_root_file_dir: true   # nécessaire pour les \input et \background relatifs
+
+      # ── 3. Renommer le PDF avec un nom lisible ────────────────────────────
+      - name: Renommer le PDF
+        run: |
+          cp "ReCeiVe_cv_[2021].pdf" "CV_Dylane_Bengono_RSSI.pdf"
+
+      # ── 4. Uploader le PDF comme artefact (visible dans chaque run) ───────
+      - name: Upload artefact PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: CV_Dylane_Bengono_RSSI
+          path: CV_Dylane_Bengono_RSSI.pdf
+          retention-days: 90
+
+      # ── 5. Créer une Release GitHub avec le PDF (sur push vers main) ──────
+      - name: Publier une Release GitHub
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: cv-v${{ github.run_number }}
+          name: "CV — Build #${{ github.run_number }}"
+          body: |
+            CV de Chanel Dylane Bengono (RSSI) — généré automatiquement depuis le commit `${{ github.sha }}`.
+
+            **Télécharger le PDF :** voir les *Assets* ci-dessous.
+          files: CV_Dylane_Bengono_RSSI.pdf
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
